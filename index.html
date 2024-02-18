@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Is Just</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+
+      body {
+        width: 100dvw;
+        height: 100dvh;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: "Montserrat", sans-serif;
+        background-color: #222;
+        color: white;
+      }
+
+      .loading * {
+        display: none;
+      }
+
+      #output {
+        font-size: 150%;
+        max-width: 400px;
+        text-align: center;
+      }
+
+      #output.error {
+        color: #b66;
+      }
+
+      #refresh {
+        cursor: pointer; /* why do I have to specify this? */
+        border: none;
+        background-color: #55c;
+        transition: background-color 0.1s ease-in-out;
+        border-radius: 0;
+        padding: 10px 30px;
+        color: white;
+        letter-spacing: 2px;
+      }
+
+      #refresh:hover {
+        background-color: #44b;
+      }
+    </style>
+  </head>
+
+  <body class="loading">
+    <p id="output"></p>
+    <button id="refresh">REROLL</button>
+    <script>
+      const output = document.getElementById("output");
+      const refresh = document.getElementById("refresh");
+      async function roll() {
+        try {
+          let [[x, y, z], [w]] = await Promise.all([
+            fetch("https://random-word-form.herokuapp.com/random/noun?count=3").then(r => r.json()),
+            fetch("https://random-word-form.herokuapp.com/random/adjective").then(r => r.json())
+          ]);
+          output.innerText = `${x} is just ${y} with ${w} ${z}`;
+          output.classList.remove("error");
+          refresh.innerText = "REROLL";
+        } catch(e) {
+          output.innerText = e.toString();
+          output.classList.add("error");
+          refresh.innerText = "RETRY";
+        }
+        document.body.classList.remove("loading");
+      }
+      refresh.addEventListener("click", roll);
+      roll();
+    </script>
+  </body>
+
+</html>
